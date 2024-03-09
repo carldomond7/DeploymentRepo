@@ -6,6 +6,8 @@ from langchain.chains import LLMChain  # Update with the correct import based on
 from langchain.prompts import PromptTemplate  # Update with the correct import based on your langchain package
 from langchain_groq import ChatGroq  # Update with the correct import based on your langchain package
 
+groq_api_key = os.getenv("GROQ_API_KEY")
+
 class UserRequest(BaseModel):
     query: str
     content: str
@@ -19,7 +21,7 @@ async def root():
 
 @app.post("/route/")
 async def process_request(user_request: UserRequest):
-    llm = ChatGroq(groq_api_key="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", model_name='mixtral-8x7b-32768')
+    llm = ChatGroq(groq_api_key=groq_api_key, model_name='mixtral-8x7b-32768')
 
     query = user_request.query
     content = user_request.content
