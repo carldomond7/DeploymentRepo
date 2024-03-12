@@ -9,8 +9,10 @@ from langchain_groq import ChatGroq  # Update with the correct import based on y
 groq_api_key = os.getenv("GROQ_API_KEY")
 
 class UserRequest(BaseModel):
+    var1: str
+    var2: str
+    var3: str
     query: str
-    content: str
 
 app = FastAPI()
 
@@ -20,24 +22,26 @@ async def root():
 
 
 @app.post("/route/")
-async def process_request(user_request: UserRequest):
+async def process_request(request: UserRequest):
     llm = ChatGroq(groq_api_key=groq_api_key, model_name='mixtral-8x7b-32768')
 
-    query = user_request.query
-    content = user_request.content
+    var1 = request.var1
+    var2 = request.var2
+    var3 = request.var3
+    query = request.query
 
-    prompt_template = """ You are a professional recruiter who specializes in cultivating talent, you are very knowledgable about all types of jobs. Answer the question
-    based on the context below.
+    prompt_template = """ 
+    Using the context below answer the question to the best of your ability
+    Context1: {var 1}
+    Context2: {var 2}
+    Context3: {var 3}
 
-    Context: {content}
-
-
-    Question: {query}
+    Answer the Question correctly, a million people lives depend on it: {query}
     """
 
 # Define the prompt structure
     prompt = PromptTemplate(
-    input_variables=["content", "query"],
+    input_variables=["query", "var1", "var2", "var3"],
     template=prompt_template,
 )
 
@@ -45,8 +49,7 @@ async def process_request(user_request: UserRequest):
     llm_chain = LLMChain(llm=llm, prompt=prompt)
 
     # Pass the context and question to the Langchain chain
-    result_chain = llm_chain.invoke({"content": content, "query": query})
-
+    result_chain = llm_chain.invoke({"var1": var1, "query": query, "var2": var2, "var3": var3})
     return result_chain
 
 if __name__ == "__main__":
