@@ -9,10 +9,17 @@ from langchain_groq import ChatGroq  # Update with the correct import based on y
 groq_api_key = os.getenv("GROQ_API_KEY")
 
 class UserRequest(BaseModel):
-    var1: str
-    var2: str
-    var3: str
-    query: str
+    Category: str
+    SubCategory: str
+    Title: str
+    Objective: str
+    Description: str
+    DetailedPrompt: str
+    Input1: str
+    Input2: str
+    Input3: str
+    Input4: str
+    Input5: str
 
 app = FastAPI()
 
@@ -25,23 +32,36 @@ async def root():
 async def process_request(request: UserRequest):
     llm = ChatGroq(groq_api_key=groq_api_key, model_name='mixtral-8x7b-32768')
 
-    var1 = request.var1
-    var2 = request.var2
-    var3 = request.var3
-    query = request.query
+    category = request.Category
+    subcategory = request.SubCategory
+    title = request.Title
+    objective = request.Objective
+    description = request.Description
+    detailedprompt = request.DetailedPrompt
+    input1 = request.Input1
+    input2 = request.Input2
+    input3 = request.Input3
+    input4 = request.Input4
+    input5 = request.Input5
 
     prompt_template = """ 
     Using the context below answer the question to the best of your ability
-    Context1: {var 1}
-    Context2: {var 2}
-    Context3: {var 3}
-
-    Answer the Question correctly, a million people lives depend on it: {query}
+    {category}
+    {subcategory}
+    {title}
+    {objective}
+    {description}
+    {input1}
+    {input2}
+    {input3}
+    {input4}
+    {input5}
+    Answer the following Question correctly, a million people lives depend on it: {detailedprompt}
     """
 
 # Define the prompt structure
     prompt = PromptTemplate(
-    input_variables=["query", "var1", "var2", "var3"],
+    input_variables=["detailedprompt", "category", "subcategory", "title", "objective", "description", "input1", "input2", "input3", "input4", "input5"],
     template=prompt_template,
 )
 
@@ -49,7 +69,7 @@ async def process_request(request: UserRequest):
     llm_chain = LLMChain(llm=llm, prompt=prompt)
 
     # Pass the context and question to the Langchain chain
-    result_chain = llm_chain.invoke({"var1": var1, "query": query, "var2": var2, "var3": var3})
+    result_chain = llm_chain.invoke({"detailedprompt": detailedprompt, "category": category, "subcategory": subcategory, "title": title, "objective": objective, "description": description, "input1": input1, "input2": input2, "input3": input3, "input4": input4, "input5": input5})
     return result_chain
 
 if __name__ == "__main__":
